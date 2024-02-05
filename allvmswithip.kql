@@ -2,7 +2,6 @@
 Resources
 | where type =~ 'microsoft.compute/virtualmachines'
 | project vmId = tolower(tostring(id)), vmName = name
-
 | join kind = leftouter (Resources
     | where type =~ 'microsoft.network/networkinterfaces'
     | mv-expand ipconfig=properties.ipConfigurations

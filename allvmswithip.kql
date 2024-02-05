@@ -15,3 +15,4 @@ Resources
 ) on vmId
 | project-away vmId1
 | sort by vmName asc
+

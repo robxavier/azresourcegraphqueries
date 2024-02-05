@@ -1,0 +1,5 @@
+resources
+| where type == "microsoft.recoveryservices/vaults"
+|join kind=leftouter (ResourceContainers | where type=='microsoft.resources/subscriptions' | mv-expand properties.managementGroupAncestorsChain| project SubName=name, subscriptionId,mgroup=properties_managementGroupAncestorsChain) on subscriptionId
+| where mgroup contains 'YOUR MANAGEMENT GROUP'
+|project id,name,resourceGroup,SubName

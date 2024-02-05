@@ -1,0 +1,18 @@
+//show all azure vmns with their respective public and private ips
+Resources
+| where type =~ 'microsoft.compute/virtualmachines'
+| project vmId = tolower(tostring(id)), vmName = name
+
+| join kind = leftouter (Resources
+    | where type =~ 'microsoft.network/networkinterfaces'
+    | mv-expand ipconfig=properties.ipConfigurations
+    | project vmId = tolower(tostring(properties.virtualMachine.id)), privateIp = ipconfig.properties.privateIPAddress, publicIpId = tostring(ipconfig.properties.publicIPAddress.id)
+    | join kind=leftouter (Resources
+        | where type =~ 'microsoft.network/publicipaddresses'
+        | project publicIpId = id, publicIp = properties.ipAddress
+    ) on publicIpId
+    | project-away publicIpId, publicIpId1
+    | summarize privateIps = make_list(privateIp), publicIps = make_list(publicIp) by vmId
+) on vmId
+| project-away vmId1
+| sort by vmName asc
